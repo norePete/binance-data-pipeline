@@ -1,14 +1,50 @@
 const { Lock } = require('./lock');
 const ipc = require('node-ipc').default;
+const EventEmitter = require('events');
+
+// GLOBAL QUEUES
+let globalSendOrders = []
+let globalCancelOrders = []
+let globalOpenOrders = []
+let globalFilledOrders = []
+
+// QUEUE CONTROLLERS (PUSH)
+const eventEmitter = new EventEmitter();
+eventEmitter.on('send', (obj) => {
+  globalSendOrders.push(obj)
+  console.log('push order onto send queue', obj);
+});
+eventEmitter.on('cancel', (obj) => {
+  globalCancelOrders.push(obj)
+  console.log('push order onto cancel queue', obj);
+});
+eventEmitter.on('open', (obj) => {
+  globalOpenOrders.push(obj)
+  console.log('push order onto open queue', obj);
+});
+eventEmitter.on('filled', (obj) => {
+  globalFilledOrders.push(obj) 
+  console.log('push order onto filled queue', obj);
+});
+
+// QUEUE CONTROLLERS (POP)
+function* pullFromSend() {
+  yield* globalSendOrders;
+}
+function* pullFromCancel() {
+  yield* globalCancelOrders;
+}
+function* pullFromOpen() {
+  yield* globalOpenOrders;
+}
+function* pullFromFilled() {
+  yield* globalFilledOrders;
+}
 
 
 // GLOBAL DATA
 let testdata = [1,2,3]
 
-let globalSendOrders = []
-let globalCancelOrders = []
-let globalOpenOrders = []
-let globalFilledOrders = []
 
 let setPoints = { //thresholds
   "avg": 245.6,
@@ -44,22 +80,34 @@ let globalModel = { //real time data
 // DATA ANALYSIS
 const priceCondition = (model, setpoints) => {
   if (model['avg'] > setpoints['avg']) { 
-    console.log("the current price triggered a buy order")
+   eventEmitter.emit('send', 
+     {symbol: "btc", 
+       type: 'limit', 
+       price: "240.5"});
   }
 }
 const volumeCondition = (model, setpoints) => {
   if (model['vol'] > setpoints['vol']) {
-    console.log("the current volume triggered a buy order")
+    eventEmitter.emit('send', 
+      {symbol: "btc", 
+        type: 'limit', 
+        price: "240.5"});
   }
 }
 const minCondition = (model, setpoints) => {
   if (model['avg'] < setpoints['min']) {
-    console.log("min price reached, sell")
+    eventEmitter.emit('send', 
+      {symbol: "btc", 
+        type: 'limit', 
+        price: "240.5"});
   }
 }
 const maxCondition = (model, setpoints) => {
   if (model['avg'] > setpoints['max']) {
-    console.log("max price reached, sell")
+    eventEmitter.emit('send', 
+      {symbol: "btc", 
+        type: 'limit', 
+        price: "240.5"});
   }
 }
 const changeSetPoint = async (key, val) =>{
@@ -121,6 +169,7 @@ ipc.serve(() => {
     console.log(message);
   })
   ipc.server.on("view", message => {
+
     console.log(setPoints);
   })
   ipc.server.on("setpoint", message => {
@@ -157,6 +206,9 @@ const runloop = async () => {
   //push positive value orders onto queue,
   //push open orders onto cancel queue if needed
   findBuyConditions(); // -- this is effected by front end
+  
+  //check open orders and cancel old or mispriced
+  findCancelConditions();
 
   //iterate over send queue, construct
   //and send all of them, a handle to 
@@ -176,14 +228,20 @@ const readData = () => {
   // unsure of best way to iterate over open sockets
 }
 const updateFilledOrders = async () => {
-  await sleep(2000);
-  // iterate over filled orders returned from 
-  // binance api, filter open orders arry to remove these filled 
+  //await sleep(2000);
+  for (const n of pullFromFilled()){
+    // iterate over filled orders returned from 
+  }
+  for (const n of pullFromOpen()){
+    // binance api, filter open orders arry to remove these filled 
+  }
   // orders, update global value-at-risk measures
+  eventEmitter.emit('filled', {symbol: "btc", type: 'limit', price: "240.5"});
 }
 const analyseSignals = async () => {
-  await sleep(2000);
+  //await sleep(2000);
   //all the interesting stuff
+  // updates main data-model
 }
 const findBuyConditions = () => {
   //iterate over individual ticker symbol data objects
@@ -195,13 +253,30 @@ const findBuyConditions = () => {
       atomic(() => { x['function'](globalModel, setPoints);});
     }});
 }
+const findCancelConditions = () => {
+  for (const n of pullFromOpen()){
+    // either push back to open or push to cancel
+    if (false) {
+      eventEmitter.emit('open', 
+        {symbol: "btc", type: 'limit', price: "240.5"});
+    } else {
+      eventEmitter.emit('cancel', 
+        {symbol: "btc", type: 'limit', price: "240.5"});
+    }
+  }
+}
 const cancelOrders = () => {
   //construct and execute cancels
+  for (const n of pullFromCancel()){
+    // hit API to cancel
+  }
 }
 const sendOrders = () => {
   //construct and execute buys/sells
-  process.stdout.write("send Orders");
-  console.log();
+  // hit API to send
+  //
+  // record open orders 
+  eventEmitter.emit('open', {symbol: "btc", type: 'limit', price: "240.5"});
 }
 const sleep = (ms) => {
   return new Promise(r => setTimeout(r, ms));
