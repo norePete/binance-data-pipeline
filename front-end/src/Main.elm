@@ -24,22 +24,22 @@ main =
 --declare data schema
 type alias Model = 
   { 
-      average: Float
-    , volume: Float
-    , min: Float
-    , max: Float
-    , averagebuffer: Float
-    , volumebuffer: Float
-    , minbuffer: Float
-    , maxbuffer: Float
+      average: Int
+    , volume: Int
+    , min: Int
+    , max: Int
+    , averagebuffer: Int
+    , volumebuffer: Int
+    , minbuffer: Int
+    , maxbuffer: Int
   }
 
 --declare type
 init : () -> (Model, Cmd Msg)
 init _=
   (Model 
-  0.0 0.0 0.0 0.0
-  0.0 0.0 0.0 0.0
+  0 0 0 0
+  0 0 0 0
   , Cmd.none)
 
 --Update 
@@ -76,13 +76,13 @@ update msg model =
       , minbuffer = model.min
       , maxbuffer = model.max}, Cmd.none)
     Volume v ->
-      ({model | volumebuffer = v |> String.toFloat|> Maybe.withDefault 4.6 }, Cmd.none)
+      ({model | volumebuffer = v |> String.toInt|> Maybe.withDefault 0 }, Cmd.none)
     Average a ->                                                             
-      ({model | averagebuffer = a |> String.toFloat|> Maybe.withDefault 4.6 }, Cmd.none)
+      ({model | averagebuffer = a |> String.toInt|> Maybe.withDefault 0 }, Cmd.none)
     Min min ->                                                               
-      ({model | minbuffer = min |> String.toFloat |> Maybe.withDefault 4.6 }, Cmd.none)
+      ({model | minbuffer = min |> String.toInt |> Maybe.withDefault 0 }, Cmd.none)
     Max max ->                                                               
-      ({model | maxbuffer = max |> String.toFloat |> Maybe.withDefault 4.6 }, Cmd.none)
+      ({model | maxbuffer = max |> String.toInt |> Maybe.withDefault 0 }, Cmd.none)
     Sent result ->
       case result of 
         Result.Ok ok ->
@@ -120,13 +120,13 @@ parameterForm : Model -> Html Msg
 parameterForm model =
   div []
   [ text "AVERAGE"
-  , viewInput "text" "average" (Round.round 1 model.averagebuffer) Average 
+  , viewInput "text" "average" (String.fromInt model.averagebuffer) Average 
   , text "VOLUME"
-  , viewInput "text" "volume"  (Round.round 1 model.volumebuffer)  Volume
+  , viewInput "text" "volume"  (String.fromInt model.volumebuffer)  Volume
   , text "MINIMUM"
-  , viewInput "text" "min"     (Round.round 1 model.minbuffer)     Min
+  , viewInput "text" "min"     (String.fromInt model.minbuffer)     Min
   , text "MAXIMUM"
-  , viewInput "text" "max"     (Round.round 1 model.maxbuffer)     Max
+  , viewInput "text" "max"     (String.fromInt model.maxbuffer)     Max
   , button [onClick Update][text "apply"]
   , button [onClick Reset][text "cancel"]
   ] 
@@ -154,9 +154,9 @@ postUpdate model =
 updateEncoder : Model -> Encode.Value
 updateEncoder model =
   Encode.object
-    [ ("avg", Encode.float model.average)
-    , ("vol", Encode.float model.volume)
-    , ("min", Encode.float model.min)
-    , ("max", Encode.float model.max)
+    [ ("avg", Encode.int model.average)
+    , ("vol", Encode.int model.volume)
+    , ("min", Encode.int model.min)
+    , ("max", Encode.int model.max)
     ]
 
