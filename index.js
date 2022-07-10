@@ -1,4 +1,3 @@
-const { factory } = require('./client');
 const { Lock } = require('./lock');
 const ipc = require('node-ipc').default;
 

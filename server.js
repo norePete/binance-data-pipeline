@@ -18,6 +18,9 @@ ipc.connectTo('process-1234', () => {
 });
 
 
+/*
+ * endpoints used for testing 
+ */
 app.get('/msg/:text', (req, res) => {
   ipc.of['process-1234'].emit('msg', `${req.params.text}`);
   res.sendStatus(200);
@@ -26,9 +29,20 @@ app.get('/view', (req, res) => {
   ipc.of['process-1234'].emit('view', "");
   res.sendStatus(200);
 });
-//url format: /set-point/avg-233
+      // /set-point/avg-233
 app.get('/setpoint/:num', (req, res) => {
   ipc.of['process-1234'].emit('setpoint', `${req.params.num}`);
+  res.sendStatus(200);
+});
+/*
+ * 
+ */
+
+app.post('/update', (req, res) => {
+  ipc.of['process-1234'].emit('setpoint', `avg-${req.body.avg}`);
+  ipc.of['process-1234'].emit('setpoint', `vol-${req.body.vol}`);
+  ipc.of['process-1234'].emit('setpoint', `min-${req.body.min}`);
+  ipc.of['process-1234'].emit('setpoint', `max-${req.body.max}`);
   res.sendStatus(200);
 });
 
