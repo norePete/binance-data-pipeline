@@ -1,5 +1,4 @@
 const { conditions } = require('./conditions');
-const { init_data_model, atomic} = require('./dataModel');
 const { 
   eventEmitter, 
   pullFromSend,
@@ -7,7 +6,6 @@ const {
   pullFromOpen,
   pullFromFilled
 } = require('./orderQueues');
-
 
 // ENTRY POINT 
 const main = async () => {
@@ -20,94 +18,233 @@ const main = async () => {
 const runloop = async () => {
   //pull from websockets: 
   //technical signals, filled orders, successful cancels
-  readData();
+  await readData();
+
+  await updateValueAtRisk();
 
   //orders that were filled should be 
   //removed from open-order queue,
   //also update position / risk measures
   await updateFilledOrders(); // --- this updates the data-model
 
-  //calculate averages etc. 
-  //update flags and values in the central
-  //source of truth
-  await analyseSignals(); //  ---  this updates the data-model
-
-
   //push positive value orders onto queue,
   //push open orders onto cancel queue if needed
-  findBuyConditions(); // -- this is effected by front end
+  await findBuyConditions(); // -- this is effected by front end
   
   //check open orders and cancel old or mispriced
-  findCancelConditions();
+  await findCancelConditions();
 
   //iterate over send queue, construct
   //and send all of them, a handle to 
   //each order should be pushed onto
   //an open order queue
-  sendOrders();
-
+  await sendOrders();
 
   //iterate over cancel queue, construct
   //and send cancels
-  cancelOrders();
+  await cancelOrders();
 }
 
 // FUNCTION DEFINITIONS 
-const readData = () => {
-  process.stdout.write("read data . . .");
-  // unsure of best way to iterate over open sockets
+const readData = async () => {
+  // API read
+
+ //data consumer waits for values to be sent to it
+  //
+  //
+//  function* globalModelListener() {
+//    while (true) {
+//      const input = yield;
+//      console.log("yield")
+//    }
+//  }
+  //
+  //
+  //
+//  console.log("data", data)
+//  console.log("data[\"avg\"]", data["avg"])
+//  console.log("data[\"avg\"] > 3000", data["avg"] > 3000)
+//  data["avg"] = 4500;
+//  console.log("new data" , data["avg"])
+  
+
+ // if( data["avg"] > 9999 ) { data["avg"] = 10 }
+ // if( data["avg1"] > 9999 ) { data["avg1"] = 10 }
+ // if( data["avg5"] > 9999 ) { data["avg5"] = 10 }
+ // if( data["avg10"] > 9999 ) { data["avg10"] = 10 }
+ // if( data["avg20"] > 9999 ) { data["avg20"] = 10 }
+ // if( data["vol"] > 9999 ) { data["vol"] = 10 }
+ // if( data["delta"] > 9999 ) { data["delta"] = 10 }
+ // if( data["theta"] > 9999 ) { data["theta"] = 10 }
+
+ // let updates = []
+ // updates.push(["avg",     data["avg"]    + 1 ]);
+ // updates.push(["avg1",    data["avg1"]  + 1 ]);
+ // updates.push(["avg5",    data["avg5"]       + 1 ]);
+ // updates.push(["avg10",   data["avg10"]      + 1 ]);
+ // updates.push(["avg20",   data["avg20"]      + 1 ]);
+ // updates.push(["vol",     data["vol"]        + 1 ]);
+ // updates.push(["delta",   data["delta"]      + 1 ]);
+ // updates.push(["theta",   data["theta"]      + 1 ]);
+
+ // console.log("updates", updates)
+
+ // updates.map((n) => {
+ //   console.log('about to emit')
+ //     eventEmitter.emit('msg', `${n[0]}-${n[1]}`);
+ //   });
 }
-const updateFilledOrders = async () => {
-  //await sleep(2000);
+
+const updateValueAtRisk = async () => {
+  //each order filled represents an increase in
+  //one asset and a decrease in another asset
+  let positionChange1 = {symbol: "", amount: 0}
+  let positionChange2 = {symbol: "", amount: 0}
+  let temp;
+
   for (const n of pullFromFilled()){
-    // iterate over filled orders returned from 
+    //calculate new value at risk from filled orders 
+    //console.log("pulled from filled", n);
+
+    temp = n.amount * n.price
+    positionChange1.amount = (n.side === "offer") ? temp : (temp * -1)
+    positionChange1.symbol = n.buy
+
+    positionChange2.amount = 
+      (n.side === "offer") ? (n.amount * -1) : n.amount
+    positionChange2.symbol = n.sell
+
+
+    eventEmitter.emit('value-at-risk', positionChange1);
+    eventEmitter.emit('value-at-risk', positionChange2);
   }
+}
+
+
+const updateFilledOrders = async () => {
+  /* 
+   * data for testing, real array should be filled 
+   * via API call
+   */
+  let latestFilledOrders = [
+    {id: '23',
+           sell: "btc", 
+           buy: "eth",
+           amount: 3, 
+           price: 26,
+           side: "bid"}
+  ] // pull from API
   for (const n of pullFromOpen()){
-    // binance api, filter open orders arry to remove these filled 
+    /*
+     * read latest fill notifications from API
+     * if an order is filled: emit filled 
+     * if an order is not filled re-emit open with same order
+     *
+     */
+      if (latestFilledOrders.filter(x => {return x.id === n.id})) {
+         let rand = Math.floor(Math.random() * 100);
+         let eventType = (rand > 50) ? 'filled' : 'cancel'
+         eventEmitter.emit(eventType, {//TODO should be 'filled' 
+           id: '23',
+           sell: "btc", 
+           buy: "eth",
+           amount: 3, 
+           price: 26,
+           side: "bid"
+         });
+      } else {
+         eventEmitter.emit('open', {
+           id: '23',
+           sell: "btc", 
+           buy: "eth",
+           amount: 3, 
+           price: 26,
+           side: "bid"
+         });
+      }
   }
   // orders, update global value-at-risk measures
-  eventEmitter.emit('filled', {symbol: "btc", type: 'limit', price: "240.5"});
+  return;
 }
-const analyseSignals = async () => {
-  //await sleep(2000);
-  //all the interesting stuff
-  // updates main data-model
-}
-const findBuyConditions = () => {
+const findBuyConditions = async () => {
+  let globalModel = { //real time data
+    "avg": 245.6,
+    "avg1": 233,
+    "avg5": 180,
+    "avg10": 190,
+    "avg20": 250,
+    "vol": 102400,
+    "delta": -5,
+    "theta": 0.6,
+  }
+  let setPoints = { //thresholds
+    "avg": 245.6,
+    "avg1": 233,
+    "avg5": 180,
+    "avg10": 190,
+    "avg20": 250,
+    "vol": 102400,
+    "delta": -5,
+    "theta": 0.6,
+    "min" : 200,
+    "max" : 300
+  }
   //iterate over individual ticker symbol data objects
   //and check each one against thresholds and 
   //conditions, pushing buy / sell / cancel orders as 
   //needed onto their respective queues
-  conditions.map((x) => 
-    {if (x['active']) {
-      atomic(() => { x['function'](globalModel, setPoints);});
-    }});
+  conditions.map(
+    (x) => {
+      if (x['active']) {
+        x['function'](globalModel, setPoints, eventEmitter);
+      }
+    }
+  );
 }
-const findCancelConditions = () => {
+const findCancelConditions = async () => {
   for (const n of pullFromOpen()){
     // either push back to open or push to cancel
-    if (false) {
-      eventEmitter.emit('open', 
-        {symbol: "btc", type: 'limit', price: "240.5"});
+    if (true) {
+      eventEmitter.emit('open', { 
+        id: '23',
+        sell: "btc", 
+        buy: "eth",
+        amount: 3, 
+        price: 26,
+        side: "bid"});
     } else {
       eventEmitter.emit('cancel', 
         {symbol: "btc", type: 'limit', price: "240.5"});
     }
   }
 }
-const cancelOrders = () => {
+const cancelOrders = async () => {
   //construct and execute cancels
   for (const n of pullFromCancel()){
     // hit API to cancel
+    //console.log("order cancelled : ", n)
   }
 }
-const sendOrders = () => {
-  //construct and execute buys/sells
-  // hit API to send
+const sendOrders = async () => {
+  try {
+    for (const n of pullFromSend()){
+      /*
+       * API call goes here
+       */
+      eventEmitter.emit('open', {
+        id: '23',
+        sell: "btc", 
+        buy: "eth",
+        amount: 3, 
+        price: 26,
+        side: "bid"});
+    }
+  } catch {
+    console.log("error reading from send queue")
+  }
+}
   //
   // record open orders 
-  eventEmitter.emit('open', {symbol: "btc", type: 'limit', price: "240.5"});
-}
 const sleep = (ms) => {
   return new Promise(r => setTimeout(r, ms));
 }

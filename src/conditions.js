@@ -1,3 +1,4 @@
+
 /*
  * The data analysis is divided into functions that
  * each independently check a condition. If the condition
@@ -6,15 +7,18 @@
  */
 
 // DATA ANALYSIS
-const priceCondition = (model, setpoints) => {
-  if (model['avg'] > setpoints['avg']) { 
+const priceCondition = (model, setpoints, eventEmitter) => {
+  if (true) { 
    eventEmitter.emit('send', 
-     {symbol: "btc", 
-       type: 'limit', 
-       price: "240.5"});
+     { id: '23',
+       sell: "btc", 
+       buy: "eth",
+       amount: 3, 
+       price: 26,
+       side: "bid"});
   }
 }
-const volumeCondition = (model, setpoints) => {
+const volumeCondition = (model, setpoints, eventEmitter) => {
   if (model['vol'] > setpoints['vol']) {
     eventEmitter.emit('send', 
       {symbol: "btc", 
@@ -22,7 +26,7 @@ const volumeCondition = (model, setpoints) => {
         price: "240.5"});
   }
 }
-const minCondition = (model, setpoints) => {
+const minCondition = (model, setpoints, eventEmitter) => {
   if (model['avg'] < setpoints['min']) {
     eventEmitter.emit('send', 
       {symbol: "btc", 
@@ -30,7 +34,7 @@ const minCondition = (model, setpoints) => {
         price: "240.5"});
   }
 }
-const maxCondition = (model, setpoints) => {
+const maxCondition = (model, setpoints, eventEmitter) => {
   if (model['avg'] > setpoints['max']) {
     eventEmitter.emit('send', 
       {symbol: "btc", 
@@ -41,19 +45,19 @@ const maxCondition = (model, setpoints) => {
 // ENABLED/DISABLED FUNCTIONS
 let conditions = [ 
   { 
-    "active" : true,
+    "active" : true, 
      "function": priceCondition
   }, 
   { 
-    "active" : true,
+    "active" : false,
      "function": volumeCondition
   }, 
   { 
-    "active" : true,
+    "active" : false,
      "function": minCondition
   }, 
   { 
-    "active" : true,
+    "active" : false,
      "function": maxCondition
   }, 
 ]
