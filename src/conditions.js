@@ -8,6 +8,13 @@
 
 // DATA ANALYSIS
 const priceCondition = (model, setpoints, eventEmitter) => {
+  let n1 = 0, n2 = 1, nextTerm;
+  for (let i = 1; i <= 1000; i++) {
+    nextTerm = n1 + n2;
+    n1 = n2;
+    n2 = nextTerm;
+  }
+  console.log(n1);
   if (true) { 
    eventEmitter.emit('send', 
      { id: '23',

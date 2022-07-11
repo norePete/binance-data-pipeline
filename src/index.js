@@ -49,25 +49,6 @@ const runloop = async () => {
 const readData = async () => {
   // API read
 
- //data consumer waits for values to be sent to it
-  //
-  //
-//  function* globalModelListener() {
-//    while (true) {
-//      const input = yield;
-//      console.log("yield")
-//    }
-//  }
-  //
-  //
-  //
-//  console.log("data", data)
-//  console.log("data[\"avg\"]", data["avg"])
-//  console.log("data[\"avg\"] > 3000", data["avg"] > 3000)
-//  data["avg"] = 4500;
-//  console.log("new data" , data["avg"])
-  
-
  // if( data["avg"] > 9999 ) { data["avg"] = 10 }
  // if( data["avg1"] > 9999 ) { data["avg1"] = 10 }
  // if( data["avg5"] > 9999 ) { data["avg5"] = 10 }
@@ -87,12 +68,21 @@ const readData = async () => {
  // updates.push(["delta",   data["delta"]      + 1 ]);
  // updates.push(["theta",   data["theta"]      + 1 ]);
 
- // console.log("updates", updates)
+  /*
+   * call into the proc-data-model process to get current prices 
+   *
+   */
 
- // updates.map((n) => {
- //   console.log('about to emit')
- //     eventEmitter.emit('msg', `${n[0]}-${n[1]}`);
- //   });
+// -- +1 to values
+
+  /*
+   *
+   * call into the proc-data-model process to update the
+   * current price values
+   *
+   */
+
+
 }
 
 const updateValueAtRisk = async () => {
@@ -167,6 +157,13 @@ const updateFilledOrders = async () => {
   return;
 }
 const findBuyConditions = async () => {
+  /*
+   * globalModel and setPoints
+   * should be dynamically generated from 
+   * the single source of truth
+   *
+   * these static copies are for testing purposes
+   */
   let globalModel = { //real time data
     "avg": 245.6,
     "avg1": 233,
@@ -189,10 +186,12 @@ const findBuyConditions = async () => {
     "min" : 200,
     "max" : 300
   }
-  //iterate over individual ticker symbol data objects
-  //and check each one against thresholds and 
-  //conditions, pushing buy / sell / cancel orders as 
-  //needed onto their respective queues
+  /*
+    * iterate over individual ticker symbol data objects
+    * and check each one against thresholds and 
+    * conditions, pushing buy / sell / cancel orders as 
+    * needed onto their respective queues
+    */
   conditions.map(
     (x) => {
       if (x['active']) {

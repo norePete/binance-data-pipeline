@@ -2,7 +2,6 @@ const ipc = require('node-ipc').default;
 const { Lock } = require('./lock');
 
 // GLOBAL DATA
-let testdata = [1,2,3]
 let setPoints = { //thresholds
   "avg": 245.6,
   "avg1": 233,
@@ -27,13 +26,17 @@ let globalModel = { //real time data
 }
 
   // INTER PROCESS FUNCTION CALLS
-  ipc.config.id = 'process-1234';
+  ipc.config.id = 'proc-data-model';
   ipc.config.retry = 1500;
   ipc.config.silent = true;
   //define message types that trigger 
   //function calls in this process
   ipc.serve(() => {
     ipc.server.on("msg", message => {
+      function(data,socket){
+        ipc.log('got a message ', data);
+        ipc.server.emit(socket, 'message', data)
+      }
       console.log(message);
     })
     ipc.server.on("view", message => {
@@ -58,7 +61,6 @@ let mutex = new Lock();
 const atomic = async (func) => {
   //acquire lock
   const release = await mutex.acquire();
-  console.log("lock acquired")
   // returns an array [true, <anonymous function>]
   // only the second element is required
   try {
@@ -67,23 +69,19 @@ const atomic = async (func) => {
       await func();
       //release lock
       release[1]();
-      console.log("lock released")
     }
   } catch (e) {
     release[1]();
-    console.log("lock released")
     throw e;
   }
 }
 
 const changeSetPoint = async (key, val) => {
-  console.log("change set point ", key, " ", val);
   await atomic(() => {
     setPoints[key] = val;
   });
 }
 const changeSnapShot = async (key, val) => {
-  console.log("change snap shot  ", key, " ", val);
   await atomic(() => {
     globalModel[key] = val;
   });
