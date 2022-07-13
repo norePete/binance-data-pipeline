@@ -23,6 +23,11 @@ const main = async () => {
    *
    */
   pull.on("message", async function(topic, message) {
+    /*
+     *
+     * push to api[]
+     *
+     */
     let received = Buffer.from(message, 'base64').toString('ascii');
     console.log("on", channel, " & msg = ", message, "or : ",received);
     let calculated = received ;
@@ -33,6 +38,11 @@ const main = async () => {
     }
   });
   stateSocket.on("message", async function(topic, message) {
+    /*
+     *
+     * push to state[]
+     *
+     */
     let received = Buffer.from(message, 'base64').toString('ascii');
     console.log("on", channel, " & msg = ", message, "or : ",received);
     let calculated = received ;
@@ -42,6 +52,24 @@ const main = async () => {
       await new Promise((resolve) => {setTimeout(resolve, 300)});
     }
   });
+}
+
+const compute = () => {
+  let state = getState();
+  let apiInfo = getApiInfo();
+  let newAverage = calculateNewAverage(state[state.length -1], apiInfo[spiInfo.length -1]);
+  push.send(
+    [channel, JSON.stringify({data: newAverage}).toString('base64')])
+
+}
+
+const getState = () => {
+  yield state;
+
+}
+
+const getApiInfo = () => {
+  yield apiInfo;
 }
 
 main();
