@@ -1,0 +1,13 @@
+subscriber connected to port 3000
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 30 31 7d> or :  {"data":201}
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 30 32 7d> or :  {"data":202}
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 30 33 7d> or :  {"data":203}
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 30 34 7d> or :  {"data":204}
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 30 35 7d> or :  {"data":205}
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 30 36 7d> or :  {"data":206}
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 30 37 7d> or :  {"data":207}
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 30 38 7d> or :  {"data":208}
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 30 39 7d> or :  {"data":209}
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 31 30 7d> or :  {"data":210}
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 31 31 7d> or :  {"data":211}
+received a message related to: channel name  & msg =  <Buffer 7b 22 64 61 74 61 22 3a 32 31 32 7d> or :  {"data":212}
