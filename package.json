@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.27.2",
+    "binance": "^2.0.35",
     "bull": "^4.8.4",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
