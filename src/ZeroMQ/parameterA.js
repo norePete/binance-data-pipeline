@@ -44,8 +44,8 @@ const compute = () => {
 
 }
 
-const calculateNewValue = () => {
-  return [23,45,77];
+const calculateNewValue = (A, B) => {
+  return [2,3,4];
 }
 
 const getA = () => {

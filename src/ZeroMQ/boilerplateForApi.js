@@ -1,6 +1,6 @@
-let zmq = require("zeromq");
-let channel = "channel name";
-
+const zmq = require("zeromq");
+const channel = "channel name";
+require('dotenv').config()
 const outbound = zmq.socket("pub");
 outbound.bindSync("tcp://127.0.0.1:3000");
 
@@ -17,3 +17,5 @@ const main = async () => {
 }
 
 main();
+
+

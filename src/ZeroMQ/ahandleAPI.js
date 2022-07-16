@@ -1,11 +1,15 @@
+const zmq = require("zeromq");
 require('dotenv').config()
+const channel = "channel name";
 const { WebsocketClient } = require('binance');
 const { DefaultLogger } = require('binance');
-
 const secret = process.env.SECRET;
 const apikey = process.env.APIKEY;
 const market = 'ETHUSDT';
 const interval = 5;
+const outbound = zmq.socket("pub");
+
+outbound.bindSync("tcp://127.0.0.1:3000");
 
 const wsClient = new WebsocketClient({
   api_key: apikey,
@@ -13,9 +17,9 @@ const wsClient = new WebsocketClient({
   beautify: true,
 }, DefaultLogger);
 
-const main = () => {
-  console.log(apikey);
-  console.log(secret);
+const main = (apikey, secret) => {
+  console.log("apikey", apikey);
+  console.log("secret", secret);
 
   wsClient.on('message', (data) => {
   });
@@ -24,9 +28,15 @@ const main = () => {
     console.log('connection opened:', data.wsKey, data.ws.target.url);
   });
 
+  /*
+   * the rest is boiler plate to set up a websocket,
+   * this is where the websocket events are emitted to 
+   * the next step in the pipeline
+   */
   wsClient.on('formattedMessage', (data) => {
-    console.log('formattedMessage: ', data);
-    process.stdout.write('\033[11A');
+    console.log(data);
+    outbound.send(
+      [channel, JSON.stringify(data).toString('base64')])
   });
 
   wsClient.on('reply', (data) => {
@@ -59,4 +69,6 @@ const main = () => {
   //wsClient.subscribeUsdFuturesUserDataStream();
 }
 
-main();
+main(
+process.env.SECRET,
+process.env.APIKEY)
