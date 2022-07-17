@@ -22,10 +22,11 @@ const main = async () => {
     let calculated = received ;
 
 
+    //keep emitting the current state until a new state is received
     while (true) {
       push.send(
-        [channel, JSON.stringify({data: calculated}).toString('base64')])
-      await new Promise((resolve) => {setTimeout(resolve, 300)});
+        [channel, JSON.stringify(calculated).toString('base64')])
+      await new Promise((resolve) => {setTimeout(resolve, 2000)});
     }
   });
 }

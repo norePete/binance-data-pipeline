@@ -43,18 +43,24 @@ const compute = async () => {
   let B = getB();
   let C = getC();
   if (A && B && C && A.length > 0 && B.length > 0 && C.length > 0) {
+    console.log("A,B,C all valid");
     resetA();
     resetB();
     resetC();
-    let newState = constructState(A, B, C);
+    let newState = constructState(A[0], B, C);
     push.send(
-    [channel, JSON.stringify({data: newState}).toString('base64')]);
+    [channel, JSON.stringify(newState).toString('base64')]);
   } else {
   }
 }
 
 const constructState = (a,b,c) => {
-  return [a, b, c];
+  let state = {
+    ...a,
+    ...b,
+    ...c,
+  }
+  return state;
 }
 const getA = () => {
   if (!queueA || queueA.length === 0) { return; }

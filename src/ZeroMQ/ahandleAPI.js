@@ -34,10 +34,11 @@ const main = (apikey, secret) => {
    * the next step in the pipeline
    */
   wsClient.on('formattedMessage', (data) => {
-    console.log(data);
     outbound.send(
       [channel, JSON.stringify(data).toString('base64')])
   });
+  /*
+   */
 
   wsClient.on('reply', (data) => {
     console.log('log reply: ', JSON.stringify(data, null, 2));

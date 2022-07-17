@@ -19,12 +19,18 @@ const main = async () => {
 
   pull.on("message", async function(topic, message) {
     let received = Buffer.from(message, 'base64').toString('ascii');
-    queueA.push(received);
+    let spread = received.askPrice - received.bidPrice;
+    let volume = received.bidQty;
+    let heat = volume / spread;
+    queueB.push({
+        "spread":spread, 
+        "volume" : volume,
+        "heat" : heat});
     await compute();
   });
   stateSocket.on("message", async function(topic, message) {
     let received = Buffer.from(message, 'base64').toString('ascii');
-    queueB.push(received);
+    queueA.push(received);
     await compute();
   });
 }
@@ -36,16 +42,41 @@ const compute = () => {
     resetA();
     resetB();
     let indicator = calculateNewValue(A, B);
+    console.log("pushing...");
+    console.log("indicator: ", indicator);
+    console.log("B: ", B);
     push.send(
-      [channel, JSON.stringify({data: indicator})
+      //send calculated indicator and most recent parsed data, in 
+      //this case: spread, volume, heat
+      [channel, JSON.stringify([indicator, B])
         .toString('base64')])
   } else {
+    push.send(
+      //if no previous state was received, simply 
+      //send it in an array so the receiving process can check
+      //for length as a method of detecting the type of message
+      [channel, JSON.stringify([B])
+        .toString('base64')])
+
   }
 
 }
 
 const calculateNewValue = () => {
-  return [23,45,77];
+  let avgSpread = A.spread + B.spread / 2;
+  let avgVolume = A.volume + B.volume / 2;
+  let previousHeat = A.heat;
+  let direction = ((A.heat - B.heat) > 0) ? -1 : +1; //
+  let heatChange = A.heat - B.heat;
+  let heat = B.heat;
+  return {
+    "avgSpread": avgSpread,
+    "avgVolume": avgVolume,
+    "previousHeat": previousHeat,
+    "direction": direction,
+    "heatChange": heatChange,
+    "heat": heat 
+  };
 }
 
 const getA = () => {

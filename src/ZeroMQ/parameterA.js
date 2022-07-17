@@ -40,12 +40,15 @@ const compute = () => {
       [channel, JSON.stringify({data: indicator})
         .toString('base64')])
   } else {
+    push.send(
+      [channel, JSON.stringify({defaultA: "nothing"})
+        .toString('base64')])
   }
 
 }
 
 const calculateNewValue = (A, B) => {
-  return [2,3,4];
+  return {defaultA: "nothing"};
 }
 
 const getA = () => {
