@@ -21,24 +21,21 @@ const main = () => {
   });
 
   wsClient.on('open', (data) => {
-    console.log('connection opened:', data.wsKey, data.ws.target.url);
   });
 
   wsClient.on('formattedMessage', (data) => {
-    console.log('formattedMessage: ', data);
-    process.stdout.write('\033[15A');
+    process.stdout.write('\033[s');
+    console.log(data);
+    process.stdout.write('\033[u');
   });
 
   wsClient.on('reply', (data) => {
-    console.log('log reply: ', JSON.stringify(data, null, 2));
   });
 
   wsClient.on('reconnecting', (data) => {
-    console.log('ws automatically reconnecting...', data?.wsKey);
   });
 
   wsClient.on('reconnected', (data) => {
-    console.log('ws has reconnected ', data?.wsKey);
   });
 
   // Call methods to subcribe to as many websockets as you want.

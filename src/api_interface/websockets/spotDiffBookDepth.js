@@ -5,7 +5,7 @@ const { DefaultLogger } = require('binance');
 const secret = process.env.SECRET;
 const apikey = process.env.APIKEY;
 const market = 'ETHUSDT';
-const interval = 1;
+const interval = 5;
 
 const wsClient = new WebsocketClient({
   api_key: apikey,
@@ -14,40 +14,38 @@ const wsClient = new WebsocketClient({
 }, DefaultLogger);
 
 const main = () => {
-  console.log(apikey);
-  console.log(secret);
 
   wsClient.on('message', (data) => {
   });
 
   wsClient.on('open', (data) => {
-    process.stdout.write('\033[s');
-    console.log('connection opened:', data.wsKey, data.ws.target.url);
-    process.stdout.write('\033[u');
   });
 
   wsClient.on('formattedMessage', (data) => {
+    console.log();
     process.stdout.write('\033[s');
-    console.log('formattedMessage: ', data);
+
+    console.log(data.eventType);
+    console.log(data.eventTime);
+    console.log(data.symbol);
+    console.log(data.firstUpdateId);
+    console.log(data.lastUpdateId);
+    console.log(data.bidDepthDelta[3].price);
+    //data.bidDepthDelta.map(x => {
+     // process.stdout.write("price: ", x.price, ", quantity: ", x.quantity, " | ");
+//    });
+    process.stdout.write('\033[u');
+    process.stdout.write('\033[u');
     process.stdout.write('\033[u');
   });
 
   wsClient.on('reply', (data) => {
-    process.stdout.write('\033[s');
-    console.log('log reply: ', JSON.stringify(data, null, 2));
-    process.stdout.write('\033[u');
   });
 
   wsClient.on('reconnecting', (data) => {
-    process.stdout.write('\033[s');
-    console.log('ws automatically reconnecting...', data?.wsKey);
-    process.stdout.write('\033[u');
   });
 
   wsClient.on('reconnected', (data) => {
-    process.stdout.write('\033[s');
-    console.log('ws has reconnected ', data?.wsKey);
-    process.stdout.write('\033[u');
   });
 
   // Call methods to subcribe to as many websockets as you want.
@@ -55,17 +53,15 @@ const main = () => {
 
   // wsClient.subscribeSpotAggregateTrades(market);
   // wsClient.subscribeSpotTrades(market);
-   wsClient.subscribeSpotKline(market, interval);
+  // wsClient.subscribeSpotKline(market, interval);
   // wsClient.subscribeSpotSymbolMini24hrTicker(market);
   // wsClient.subscribeSpotAllMini24hrTickers();
   // wsClient.subscribeSpotSymbol24hrTicker(market);
   // wsClient.subscribeSpotAll24hrTickers();
-
   // wsClient.subscribeSpotSymbolBookTicker(market);
-
   // wsClient.subscribeSpotAllBookTickers();
   // wsClient.subscribeSpotPartialBookDepth(market, 5);
-  // wsClient.subscribeSpotDiffBookDepth(market);
+   wsClient.subscribeSpotDiffBookDepth(market);
   //wsClient.subscribeSpotUserDataStream();
   //wsClient.subscribeUsdFuturesUserDataStream();
 }

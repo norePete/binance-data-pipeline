@@ -5,7 +5,7 @@ const { DefaultLogger } = require('binance');
 const secret = process.env.SECRET;
 const apikey = process.env.APIKEY;
 const market = 'ETHUSDT';
-const interval = 1;
+const interval = 5;
 
 const wsClient = new WebsocketClient({
   api_key: apikey,
@@ -21,9 +21,7 @@ const main = () => {
   });
 
   wsClient.on('open', (data) => {
-    process.stdout.write('\033[s');
     console.log('connection opened:', data.wsKey, data.ws.target.url);
-    process.stdout.write('\033[u');
   });
 
   wsClient.on('formattedMessage', (data) => {
@@ -55,14 +53,12 @@ const main = () => {
 
   // wsClient.subscribeSpotAggregateTrades(market);
   // wsClient.subscribeSpotTrades(market);
-   wsClient.subscribeSpotKline(market, interval);
-  // wsClient.subscribeSpotSymbolMini24hrTicker(market);
+  // wsClient.subscribeSpotKline(market, interval);
+   wsClient.subscribeSpotSymbolMini24hrTicker(market);
   // wsClient.subscribeSpotAllMini24hrTickers();
   // wsClient.subscribeSpotSymbol24hrTicker(market);
   // wsClient.subscribeSpotAll24hrTickers();
-
   // wsClient.subscribeSpotSymbolBookTicker(market);
-
   // wsClient.subscribeSpotAllBookTickers();
   // wsClient.subscribeSpotPartialBookDepth(market, 5);
   // wsClient.subscribeSpotDiffBookDepth(market);

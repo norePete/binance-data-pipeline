@@ -25,8 +25,8 @@ const main = () => {
   });
 
   wsClient.on('formattedMessage', (data) => {
-    console.log('formattedMessage: ', data);
-    process.stdout.write('\033[31A');
+    console.log('=================================', data);
+    process.stdout.write('\033[29A');
   });
 
   wsClient.on('reply', (data) => {
@@ -60,3 +60,40 @@ const main = () => {
 }
 
 main();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
