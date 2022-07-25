@@ -26,7 +26,7 @@ const main = () => {
 
   wsClient.on('formattedMessage', (data) => {
     console.log('formattedMessage: ', data);
-    process.stdout.write('\033[11A');
+    process.stdout.write('\033[15A');
   });
 
   wsClient.on('reply', (data) => {
