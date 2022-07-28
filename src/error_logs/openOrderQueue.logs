@@ -1,13 +1,1 @@
-/home/sandworm/Workspace/binance-data-pipeline/node_modules/zeromq/lib/index.js:460
-  this._zmq.bindSync(addr);
-            ^
-
-Error: Address already in use
-    at exports.Socket.Socket.bindSync (/home/sandworm/Workspace/binance-data-pipeline/node_modules/zeromq/lib/index.js:460:13)
-    at Object.<anonymous> (/home/sandworm/Workspace/binance-data-pipeline/src/openOrderQueue.js:8:6)
-    at Module._compile (node:internal/modules/cjs/loader:1109:14)
-    at Object.Module._extensions..js (node:internal/modules/cjs/loader:1138:10)
-    at Module.load (node:internal/modules/cjs/loader:989:32)
-    at Function.Module._load (node:internal/modules/cjs/loader:829:14)
-    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:76:12)
-    at node:internal/main/run_main_module:17:47
+xfce4-terminal: Unknown option "openOrderQueue.js"
