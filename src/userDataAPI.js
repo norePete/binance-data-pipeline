@@ -1,23 +1,25 @@
 const zmq = require("zeromq");
-require('dotenv').config()
+const path = require('path');
+//require('dotenv').config({path: path.relative(path.join(__dirname, '.env'))});
+require('dotenv').config({path: path.join(__dirname, '.env')});
 const channel = "channel name";
 const { WebsocketClient } = require('binance');
 const { DefaultLogger } = require('binance');
-const secret = process.env.SECRET;
-const apikey = process.env.APIKEY;
+const Secret = process.env.SECRET;
+const ApiKey = process.env.APIKEY;
 const market = 'SOLUSDT';
 const interval = 5;
 const outbound = zmq.socket("pub");
 
-outbound.bindSync("tcp://127.0.0.1:3000");
+outbound.bindSync("tcp://127.0.0.1:3040");
 
 const wsClient = new WebsocketClient({
-  api_key: apikey,
-  api_secret: secret, 
+  api_key: ApiKey,
+  api_secret: Secret, 
   beautify: true,
 }, DefaultLogger);
 
-const main = (apikey, secret) => {
+const main = async (apikey, secret) => {
   console.log("apikey", apikey);
   console.log("secret", secret);
 
@@ -34,10 +36,17 @@ const main = (apikey, secret) => {
    * the next step in the pipeline
    */
   wsClient.on('formattedMessage', (data) => {
-    console.log(data);
     outbound.send(
-      [channel, Buffer.from(JSON.stringify(data).toString('base64'))])
+      [channel, Buffer.from(JSON.stringify({balance: {usdt: 10, usdc: 13}}).toString('base64'))])
   });
+  // simulating web socket events which will happen in the ^above 'formattedMessage' processor
+    while (true) {
+      let output = Buffer.from(JSON.stringify({balance: {usdt: 10, usdc: 13}}).toString('base64'));
+      console.log("output ", output);
+      outbound.send(
+        [channel, output])
+      await new Promise((resolve) => {setTimeout(resolve, 2000)});
+    }
   /*
    */
 
@@ -63,11 +72,11 @@ const main = (apikey, secret) => {
   // wsClient.subscribeSpotAllMini24hrTickers();
   // wsClient.subscribeSpotSymbol24hrTicker(market);
   // wsClient.subscribeSpotAll24hrTickers();
-   wsClient.subscribeSpotSymbolBookTicker(market);
+  // wsClient.subscribeSpotSymbolBookTicker(market);
   // wsClient.subscribeSpotAllBookTickers();
   // wsClient.subscribeSpotPartialBookDepth(market, 5);
   // wsClient.subscribeSpotDiffBookDepth(market);
-  //wsClient.subscribeSpotUserDataStream();
+  wsClient.subscribeSpotUserDataStream();
   //wsClient.subscribeUsdFuturesUserDataStream();
 }
 

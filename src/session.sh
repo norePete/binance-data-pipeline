@@ -23,7 +23,8 @@ tmux send-keys   -t $SESSION:0 "cd $PWD" C-m
 tmux send-keys   -t $SESSION:0 "node  ahandleAPI.js" C-m 
 
 
-tmux split-window -v -l 5 -t 0 
+tmux split-window -v -l 25 -t 0 
+
 
 tmux new-window -t $SESSION:1 -k -n parameterA
 tmux send-keys   -t $SESSION:1 "cd $PWD" C-m 
@@ -68,6 +69,10 @@ tmux send-keys   -t $SESSION:10 "node cancelQueue.js" C-m
 tmux new-window -t $SESSION:11 -k -n executeOrder
 tmux send-keys   -t $SESSION:11 "cd $PWD" C-m 
 tmux send-keys   -t $SESSION:11 "node executeOrder.js" C-m 
+
+tmux new-window -t $SESSION:12 -k -n userDataAPI
+tmux send-keys   -t $SESSION:12 "cd $PWD" C-m 
+tmux send-keys   -t $SESSION:12 "node userDataAPI.js" C-m 
 
 tmux select-window -t $SESSION:0
 tmux -2 attach -t $SESSION

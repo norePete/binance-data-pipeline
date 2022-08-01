@@ -21,17 +21,18 @@ const main = async () => {
   pullC.subscribe(channel);
 
   pullA.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
+    let received = JSON.parse(Buffer.from(message, 'base64'));
     queueA.push(received);
     await compute();
   });
   pullB.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
+    let received = JSON.parse(Buffer.from(message, 'base64'));
+    console.log("received", received);
     queueB.push(received);
     await compute();
   });
   pullC.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
+    let received = JSON.parse(Buffer.from(message, 'base64'));
     queueC.push(received);
     await compute();
   });
@@ -42,14 +43,14 @@ const compute = async () => {
   let A = getA();
   let B = getB();
   let C = getC();
-  if (A && B && C && A.length > 0 && B.length > 0 && C.length > 0) {
-    console.log("A,B,C all valid");
+  console.log('B', B);
+  if (A && B && C) {
+    let newState = constructState(A, B, C);
+    push.send(
+    [channel, Buffer.from(JSON.stringify(newState).toString('base64'))]);
     resetA();
     resetB();
     resetC();
-    let newState = constructState(A[0], B, C);
-    push.send(
-    [channel, JSON.stringify(newState).toString('base64')]);
   } else {
   }
 }
@@ -63,15 +64,16 @@ const constructState = (a,b,c) => {
   return state;
 }
 const getA = () => {
-  if (!queueA || queueA.length === 0) { return; }
+  if (!queueA || queueA.length === 0) { return "failed"; }
   return queueA[queueA.length - 1];
 }
 const getB = () => {
+  console.log("queueB? ",!!queueB)
   if (!queueB || queueB.length === 0) { return; }
   return queueB[queueB.length - 1];
 }
 const getC = () => {
-  if (!queueC || queueC.length === 0) { return; }
+  if (!queueC || queueC.length === 0) { return "failed"; }
   return queueC[queueC.length - 1];
 }
 const resetA = () => {

@@ -2,7 +2,7 @@ let zmq = require("zeromq");
 let channel = "channel name"
 
 const pull = zmq.socket("sub");
-pull.connect("tcp://127.0.0.1:3000");
+pull.connect("tcp://127.0.0.1:3040");
 
 const stateSocket = zmq.socket("sub");
 stateSocket.connect("tcp://127.0.0.1:3001");
@@ -14,41 +14,50 @@ let queueA = []
 let queueB = []
 
 const main = async () => {
+  //pull current balance
   pull.subscribe(channel);
   stateSocket.subscribe(channel);
 
   pull.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
+    let received = Buffer.from(message, 'base64');
     queueA.push(received);
     await compute();
   });
+  
+  //pull minimum balance from state, even though it'll never change
   stateSocket.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
+    let received = Buffer.from(message, 'base64');
     queueB.push(received);
     await compute();
   });
 }
 
-const compute = () => {
+const compute = async () => {
   let A = getA();
   let B = getB();
+  let indicator = await calculateNewValue(A, B);
   if (A && B && A.length > 0 && B.length > 0){
+    let indicator = await calculateNewValue(A, B);
+    console.log("indicator", indicator);
+    push.send(
+      [channel, JSON.stringify(indicator)
+        .toString('base64')])
     resetA();
     resetB();
-    let indicator = calculateNewValue(A, B);
-    push.send(
-      [channel, JSON.stringify({data: indicator})
-        .toString('base64')])
   } else {
     push.send(
       [channel, JSON.stringify({defaultC: "nothing"})
         .toString('base64')])
   }
-
 }
 
-const calculateNewValue = () => {
-  return { defaultC: "nothing"};
+const calculateNewValue = (apiData, state) => {
+  let minimumBal = state;
+  let currentBal = apiData;//.balance.usdt//object from user account endpoint
+  return { 
+    minimumBalance: minimumBal,
+    balance: currentBal
+  };
 }
 
 const getA = () => {

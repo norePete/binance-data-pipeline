@@ -18,12 +18,12 @@ const main = async () => {
   stateSocket.subscribe(channel);
 
   pull.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
+    let received = Buffer.from(message, 'base64');
     queueA.push(received);
     await compute();
   });
   stateSocket.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
+    let received = Buffer.from(message, 'base64');
     queueB.push(received);
     await compute();
   });
@@ -32,13 +32,14 @@ const main = async () => {
 const compute = () => {
   let A = getA();
   let B = getB();
-  if (A && B && A.length > 0 && B.length > 0){
-    resetA();
-    resetB();
+  if (A && B){
     let indicator = calculateNewValue(A, B);
+    console.log("indicator : ", indicator);
     push.send(
       [channel, JSON.stringify({data: indicator})
         .toString('base64')])
+    resetA();
+    resetB();
   } else {
     push.send(
       [channel, JSON.stringify({defaultA: "nothing"})
@@ -48,7 +49,9 @@ const compute = () => {
 }
 
 const calculateNewValue = (A, B) => {
-  return {defaultA: "nothing"};
+  return {
+    ...A,
+    ...B};
 }
 
 const getA = () => {

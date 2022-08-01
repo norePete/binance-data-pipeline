@@ -18,7 +18,7 @@ const main = async () => {
   stateSocket.subscribe(channel);
 
   pull.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
+    let received = JSON.parse(Buffer.from(message, 'base64'));
     let spread = received.askPrice - received.bidPrice;
     let volume = received.bidQty;
     let heat = volume / spread;
@@ -28,41 +28,39 @@ const main = async () => {
         "heat" : heat});
     await compute();
   });
+
   stateSocket.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
+    let received = JSON.parse(Buffer.from(message, 'base64'));
     queueA.push(received);
-    await compute();
   });
 }
 
 const compute = () => {
   let A = getA();
   let B = getB();
-  if (A && B && A.length > 0 && B.length > 0){
-    resetA();
-    resetB();
+
+  if (A && B){
     let indicator = calculateNewValue(A, B);
-    console.log("pushing...");
-    console.log("indicator: ", indicator);
-    console.log("B: ", B);
     push.send(
       //send calculated indicator and most recent parsed data, in 
       //this case: spread, volume, heat
-      [channel, JSON.stringify([indicator, B])
-        .toString('base64')])
+      [channel, Buffer.from(JSON.stringify([indicator, B])
+        .toString('base64'))])
+    resetA();
+    resetB();
   } else {
     push.send(
       //if no previous state was received, simply 
       //send it in an array so the receiving process can check
       //for length as a method of detecting the type of message
-      [channel, JSON.stringify([B])
-        .toString('base64')])
-
+      [channel, Buffer.from(JSON.stringify([B])
+        .toString('base64'))])
   }
 
 }
 
 const calculateNewValue = () => {
+  return { rollingAvg: 34.5 };
   let avgSpread = A.spread + B.spread / 2;
   let avgVolume = A.volume + B.volume / 2;
   let previousHeat = A.heat;

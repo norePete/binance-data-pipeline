@@ -11,8 +11,8 @@ const main = async () => {
   pull.subscribe(channel);
 
   pull.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
-    console.log("received a message related to:", channel, " & msg = ", message, "or : ",received);
+    let received = JSON.parse(Buffer.from(message, 'base64'));
+    console.log(" msg = ", message, "or : ",received);
 
 /*
  * any computation needs 
@@ -25,7 +25,7 @@ const main = async () => {
     //keep emitting the current state until a new state is received
     while (true) {
       push.send(
-        [channel, JSON.stringify(calculated).toString('base64')])
+        [channel, Buffer.from(JSON.stringify(calculated).toString('base64'))])
       await new Promise((resolve) => {setTimeout(resolve, 2000)});
     }
   });
