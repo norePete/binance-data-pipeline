@@ -23,18 +23,24 @@ const main = async () => {
   pullA.on("message", async function(topic, message) {
     let received = JSON.parse(Buffer.from(message, 'base64'));
     queueA.push(received);
-    await compute();
+    if (queueB.length > 0 && queueC.length > 0){
+      await compute();
+    }
   });
   pullB.on("message", async function(topic, message) {
     let received = JSON.parse(Buffer.from(message, 'base64'));
-    console.log("received", received);
     queueB.push(received);
-    await compute();
+    if (queueA.length > 0 && queueC.length > 0){
+      await compute();
+    }
   });
   pullC.on("message", async function(topic, message) {
     let received = JSON.parse(Buffer.from(message, 'base64'));
     queueC.push(received);
     await compute();
+    if (queueB.length > 0 && queueA.length > 0){
+      await compute();
+    }
   });
 
 }
@@ -43,9 +49,9 @@ const compute = async () => {
   let A = getA();
   let B = getB();
   let C = getC();
-  console.log('B', B);
   if (A && B && C) {
-    let newState = constructState(A, B, C);
+    let newState = await constructState(A, B, C);
+    console.log("newstate", newState);
     push.send(
     [channel, Buffer.from(JSON.stringify(newState).toString('base64'))]);
     resetA();
@@ -55,7 +61,7 @@ const compute = async () => {
   }
 }
 
-const constructState = (a,b,c) => {
+const constructState = async (a,b,c) => {
   let state = {
     ...a,
     ...b,
@@ -64,16 +70,15 @@ const constructState = (a,b,c) => {
   return state;
 }
 const getA = () => {
-  if (!queueA || queueA.length === 0) { return "failed"; }
+  if (!queueA || queueA.length === 0) { return {a: "failed"}; }
   return queueA[queueA.length - 1];
 }
 const getB = () => {
-  console.log("queueB? ",!!queueB)
-  if (!queueB || queueB.length === 0) { return; }
+  if (!queueB || queueB.length === 0) { return {b: "failed"};}
   return queueB[queueB.length - 1];
 }
 const getC = () => {
-  if (!queueC || queueC.length === 0) { return "failed"; }
+  if (!queueC || queueC.length === 0) { return {c: "failed"}; }
   return queueC[queueC.length - 1];
 }
 const resetA = () => {

@@ -44,18 +44,14 @@ const compute = () => {
     push.send(
       //send calculated indicator and most recent parsed data, in 
       //this case: spread, volume, heat
-      [channel, Buffer.from(JSON.stringify([indicator, B])
-        .toString('base64'))])
+      [channel, Buffer.from(JSON.stringify(indicator).toString('base64'))])
     resetA();
     resetB();
-  } else {
-    push.send(
-      //if no previous state was received, simply 
-      //send it in an array so the receiving process can check
-      //for length as a method of detecting the type of message
-      [channel, Buffer.from(JSON.stringify([B])
-        .toString('base64'))])
-  }
+  } else if (queueA.length > 10){
+    resetA();
+  } else if (queueB.length > 10){
+    resetB();
+  } else {}
 
 }
 

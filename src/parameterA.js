@@ -18,40 +18,41 @@ const main = async () => {
   stateSocket.subscribe(channel);
 
   pull.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64');
+    let received = JSON.parse(Buffer.from(message, 'base64'));
     queueA.push(received);
     await compute();
   });
   stateSocket.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64');
+    let received = JSON.parse(Buffer.from(message, 'base64'));
     queueB.push(received);
     await compute();
   });
 }
 
-const compute = () => {
+const compute = async () => {
   let A = getA();
   let B = getB();
   if (A && B){
-    let indicator = calculateNewValue(A, B);
-    console.log("indicator : ", indicator);
+    let indicator = await calculateNewValue(A, B);
+    console.log(indicator);
     push.send(
-      [channel, JSON.stringify({data: indicator})
-        .toString('base64')])
+      [channel, Buffer.from(JSON.stringify(indicator).toString('base64'))])
     resetA();
     resetB();
-  } else {
-    push.send(
-      [channel, JSON.stringify({defaultA: "nothing"})
-        .toString('base64')])
-  }
-
+  } else if (queueA.length > 10){
+    resetA();
+  } else if (queueB.length > 10){
+    resetB();
+  } else {}
 }
 
-const calculateNewValue = (A, B) => {
+const calculateNewValue = async (A, B) => {
   return {
-    ...A,
-    ...B};
+    data: [
+    A,
+    ...B
+    ]
+  };
 }
 
 const getA = () => {

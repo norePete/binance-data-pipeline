@@ -40,14 +40,13 @@ const compute = async () => {
     let indicator = await calculateNewValue(A, B);
     console.log("indicator", indicator);
     push.send(
-      [channel, JSON.stringify(indicator)
-        .toString('base64')])
+      [channel, Buffer.from(JSON.stringify(indicator).toString('base64'))])
     resetA();
     resetB();
   } else {
     push.send(
-      [channel, JSON.stringify({defaultC: "nothing"})
-        .toString('base64')])
+      [channel, Buffer.from(JSON.stringify({defaultC: "nothing"})
+        .toString('base64'))])
   }
 }
 
