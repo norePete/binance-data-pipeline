@@ -19,14 +19,14 @@ const main = async () => {
   stateSocket.subscribe(channel);
 
   pull.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64');
+    let received = JSON.parse(Buffer.from(message, 'base64'));
     queueA.push(received);
     await compute();
   });
   
   //pull minimum balance from state, even though it'll never change
   stateSocket.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64');
+    let received = JSON.parse(Buffer.from(message, 'base64'));
     queueB.push(received);
     await compute();
   });
@@ -35,24 +35,21 @@ const main = async () => {
 const compute = async () => {
   let A = getA();
   let B = getB();
-  let indicator = await calculateNewValue(A, B);
-  if (A && B && A.length > 0 && B.length > 0){
+
+  if (A && B){
     let indicator = await calculateNewValue(A, B);
-    console.log("indicator", indicator);
+    console.log(indicator);
     push.send(
       [channel, Buffer.from(JSON.stringify(indicator).toString('base64'))])
     resetA();
     resetB();
   } else {
-    push.send(
-      [channel, Buffer.from(JSON.stringify({defaultC: "nothing"})
-        .toString('base64'))])
   }
 }
 
-const calculateNewValue = (apiData, state) => {
-  let minimumBal = state;
-  let currentBal = apiData;//.balance.usdt//object from user account endpoint
+const calculateNewValue = async(apiData, state) => {
+  let minimumBal = state.minimumBalance;
+  let currentBal = apiData.balance.usdt + apiData.balance.usdc;
   return { 
     minimumBalance: minimumBal,
     balance: currentBal

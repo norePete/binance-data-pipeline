@@ -1,0 +1,72 @@
+resend {
+  rollingAvg: 0,
+  spread: 0,
+  volume: 0,
+  heat: 0,
+  data: 0,
+  balance: 0,
+  minimumBalance: 0
+}
+resend {
+  rollingAvg: 0,
+  spread: 0,
+  volume: 0,
+  heat: 0,
+  data: 0,
+  balance: 0,
+  minimumBalance: 0
+}
+send {
+  rollingAvg: 0,
+  spread: 0,
+  volume: 0,
+  heat: 21822.00000000434,
+  data: 0,
+  balance: 10,
+  minimumBalance: 0
+}
+send {
+  rollingAvg: 0,
+  spread: 0,
+  volume: 0,
+  heat: 20752.00000000413,
+  data: 0,
+  balance: 10,
+  minimumBalance: 0
+}
+resend {
+  rollingAvg: 0,
+  spread: 0,
+  volume: 0,
+  heat: 20752.00000000413,
+  data: 0,
+  balance: 10,
+  minimumBalance: 0
+}
+send {
+  rollingAvg: 0,
+  spread: 0,
+  volume: 0,
+  heat: 26393.999999986496,
+  data: 0,
+  balance: 10,
+  minimumBalance: 0
+}
+resend {
+  rollingAvg: 0,
+  spread: 0,
+  volume: 0,
+  heat: 26393.999999986496,
+  data: 0,
+  balance: 10,
+  minimumBalance: 0
+}
+send {
+  rollingAvg: 0,
+  spread: 0,
+  volume: 0,
+  heat: 25090.00000000499,
+  data: 0,
+  balance: 10,
+  minimumBalance: 0
+}

@@ -35,12 +35,12 @@ const main = async () => {
   });
 }
 
-const compute = () => {
+const compute = async () => {
   let A = getA();
   let B = getB();
-
   if (A && B){
-    let indicator = calculateNewValue(A, B);
+    let indicator = await calculateNewValue(A, B);
+    console.log(indicator);
     push.send(
       //send calculated indicator and most recent parsed data, in 
       //this case: spread, volume, heat
@@ -55,8 +55,7 @@ const compute = () => {
 
 }
 
-const calculateNewValue = () => {
-  return { rollingAvg: 34.5 };
+const calculateNewValue = async (A, B) => {
   let avgSpread = A.spread + B.spread / 2;
   let avgVolume = A.volume + B.volume / 2;
   let previousHeat = A.heat;

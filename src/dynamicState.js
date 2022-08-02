@@ -9,23 +9,31 @@ push.bindSync("tcp://127.0.0.1:3001");
 
 const main = async () => {
   let calculated = {
-    rollingAvg: 0,
+    askPrice: 0,
+    lowestAskPrice: 999999,
+    highestAskPrice: 0,
     spread: 0,
     volume: 0,
+    avgVolume: 0,
+    previousHeat: 0,
+    heatChange: 0,
     heat: 0,
-    data: 0,
     balance: 0,
-    minimumBalance: 0
+    minimumBalance: 10
   } 
   pull.subscribe(channel);
 
   pull.on("message", async function(topic, message) {
     let received = JSON.parse(Buffer.from(message, 'base64'));
-    if (received.rollingAvg ) {calculated.rollingAvg = received.rollingAvg}
-    if (received.spread ) {calculated.spread = received.spread}
-    if (received.volume ) {calculated.volume = received.volume}
+    if (received.lowestAskPrice) {calculated.lowestAskPrice = received.lowestAskPrice}
+    if (received.highestAskPrice) {calculated.highestAskPrice = received.highestAskPrice}
+    if (received.spread) {calculated.spread = received.spread}
+    if (received.volume) {calculated.volume = received.volume}
+    if (received.askPrice) {calculated.askPrice = received.askPrice}
+    if (received.avgVolume ) {calculated.avgVolume = received.avgVolume}
+    if (received.previousHeat ) {calculated.previousHeat = received.previousHeat}
+    if (received.heatChange) {calculated.heatChange = received.heatChange}
     if (received.heat ) {calculated.heat = received.heat}
-    if (received.data ) {calculated.data = received.data}
     if (received.balance ) {calculated.balance = received.balance}
     if (received.minimumBalance ) {calculated.minimumBalance = received.minimumBalance}
 
