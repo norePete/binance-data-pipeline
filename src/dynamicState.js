@@ -9,6 +9,7 @@ push.bindSync("tcp://127.0.0.1:3001");
 
 const main = async () => {
   let calculated = {
+    symbol: "DEFAULT",
     askPrice: 0,
     lowestAskPrice: 999999,
     highestAskPrice: 0,
@@ -25,6 +26,8 @@ const main = async () => {
 
   pull.on("message", async function(topic, message) {
     let received = JSON.parse(Buffer.from(message, 'base64'));
+    //implement this better, using a dict or something
+    if (received.symbol) {calculated.symbol = received.symbol}
     if (received.lowestAskPrice) {calculated.lowestAskPrice = received.lowestAskPrice}
     if (received.highestAskPrice) {calculated.highestAskPrice = received.highestAskPrice}
     if (received.spread) {calculated.spread = received.spread}
@@ -37,12 +40,6 @@ const main = async () => {
     if (received.balance ) {calculated.balance = received.balance}
     if (received.minimumBalance ) {calculated.minimumBalance = received.minimumBalance}
 
-
-/*
- * any computation needs 
- * to take placew here
- *
- */
     push.send(
       [channel, Buffer.from(JSON.stringify(calculated).toString('base64'))])
     console.log("send", calculated);

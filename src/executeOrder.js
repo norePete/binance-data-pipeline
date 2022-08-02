@@ -8,15 +8,17 @@ const main = async () => {
   pull.subscribe(channel);
 
   pull.on("message", function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
-    console.log("received a message related to:", channel, " & msg = ", message, "or : ",received);
-
+    let received = JSON.parse(Buffer.from(message, 'base64'));
 /*
  * any computation needs 
  * to take placew here
  *
  */
-    console.log(`send POST request to buy/sell ${received}`)
+    if (received.length > 0) {
+      console.log("send POST request to buy/sell", received[0])
+    } else {
+      console.log("no waiting orders")
+    }
   });
 }
 

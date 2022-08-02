@@ -37,11 +37,11 @@ const main = async (apikey, secret) => {
    */
   wsClient.on('formattedMessage', (data) => {
     outbound.send(
-      [channel, Buffer.from(JSON.stringify({balance: {usdt: 10, usdc: 13}}).toString('base64'))])
+      [channel, Buffer.from(JSON.stringify([]).toString('base64'))])
   });
   // simulating web socket events which will happen in the ^above 'formattedMessage' processor
     while (true) {
-      let output = Buffer.from(JSON.stringify({balance: {usdt: 10, usdc: 13}}).toString('base64'));
+      let output = Buffer.from(JSON.stringify({balance: {usdt: 1, usdc: 3}}).toString('base64'));
       console.log("output ", output);
       outbound.send(
         [channel, output])

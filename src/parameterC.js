@@ -50,6 +50,7 @@ const compute = async () => {
 const calculateNewValue = async(apiData, state) => {
   let minimumBal = state.minimumBalance;
   let currentBal = apiData.balance.usdt + apiData.balance.usdc;
+  console.log(currentBal)
   return { 
     minimumBalance: minimumBal,
     balance: currentBal

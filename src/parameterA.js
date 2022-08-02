@@ -33,7 +33,7 @@ const compute = async () => {
   let A = getA();
   let B = getB();
   if (A && B){
-    let indicator = await calculateNewValue(A.askPrice, B);
+    let indicator = await calculateNewValue(A, B);
     console.log(indicator);
     push.send(
       [channel, Buffer.from(JSON.stringify(indicator).toString('base64'))])
@@ -46,10 +46,13 @@ const compute = async () => {
   } else {}
 }
 
-const calculateNewValue = async (askPrice, state) => {
-  let lowestAskPrice = (askPrice < state.lowestAskPrice) ? askPrice : state.lowestAskPrice;
-  let highestAskPrice = (askPrice > state.highestAskPrice) ? askPrice : state.highestAskPrice;
+const calculateNewValue = async (apiInfo, state) => {
+  let symbol = apiInfo.symbol;
+  let askPrice = apiInfo.askPrice;
+  let lowestAskPrice = (apiInfo.askPrice < state.lowestAskPrice) ? apiInfo.askPrice : state.lowestAskPrice;
+  let highestAskPrice = (apiInfo.askPrice > state.highestAskPrice) ? apiInfo.askPrice : state.highestAskPrice;
   return {
+    symbol,
     askPrice,
     lowestAskPrice,
     highestAskPrice

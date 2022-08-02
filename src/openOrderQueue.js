@@ -2,33 +2,31 @@ let zmq = require("zeromq");
 let channel = "channel name"
 
 const pull = zmq.socket("sub");
-pull.connect("tcp://127.0.0.1:3000");
+pull.connect("tcp://127.0.0.1:3999"); //empty port, not implemented yet
 
 const push = zmq.socket("pub");
 push.bindSync("tcp://127.0.0.1:3082");
 
 const main = async () => {
   pull.subscribe(channel);
-  console.log("subscriber connected to port 3000");
 
   pull.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
-    console.log("received a message related to:", channel, " & msg = ", message, "or : ",received);
+    let received = JSON.parse(Buffer.from(message, 'base64'));
 
 /*
  * any computation needs 
- * to take placew here
+ * to take place here
  *
  */
-    let calculated = received ;
-
-
-    while (true) {
-      push.send(
-        [channel, JSON.stringify({data: calculated}).toString('base64')])
-      await new Promise((resolve) => {setTimeout(resolve, 300)});
-    }
   });
+  while (true) {
+    let rand = Math.floor(Math.random() * 199999);
+    let calculated = {orderId: rand.toString()};
+    console.log(calculated);
+    push.send(
+      [channel, JSON.stringify(calculated).toString('base64')])
+    await new Promise((resolve) => {setTimeout(resolve, 300)});
+  }
 }
 
 main();

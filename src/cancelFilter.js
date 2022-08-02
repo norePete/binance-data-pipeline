@@ -17,12 +17,12 @@ const main = async () => {
   stateSocket.subscribe(channel);
 
   pull.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
+    let received = JSON.parse(Buffer.from(message, 'base64'));
     queueA.push(received);
     await compute();
   });
   stateSocket.on("message", async function(topic, message) {
-    let received = Buffer.from(message, 'base64').toString('ascii');
+    let received = JSON.parse(Buffer.from(message, 'base64'));
     queueB.push(received);
     await compute();
   });
@@ -31,18 +31,22 @@ const main = async () => {
 const compute = async () => {
   let A = getA();
   let B = getB();
-  if (A && B && A.length > 0 && B.length > 0){
+  if (A && B){
     resetA();
     resetB();
     let cancelCommand = findBadOrder(A, B);
+    console.log(cancelCommand);
     push.send(
-    [channel, JSON.stringify({data: cancelCommand}).toString('base64')]);
+    [channel, Buffer.from(JSON.stringify(cancelCommand).toString('base64'))]);
   } else {
   }
 }
 
-const findBadOrder = (a,b) => {
-  return "bad order";
+const findBadOrder = (order,state) => {
+  if (state.minimumBalance > state.balance) {
+    return [order];
+  }
+  return [];
 }
 
 const getA = () => {
