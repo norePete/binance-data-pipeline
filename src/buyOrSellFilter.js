@@ -16,35 +16,36 @@ const main = async () => {
   stateSocket.subscribe(channel);
 
   let thresholdObj = {
-    maxSomething : 100,
-    minSomething : 4
+    avg: 100,
+    vol: 200,
+    min: 1,
+    max: 999
   }
 
   thresholdSocket.on("message",async function(topic, message) {
     let received = JSON.parse(Buffer.from(message, 'base64'));
     //implement this using a dict probably
-    if(received.maxSomething) {thresholdObj.maxSomething = received.maxSomething}
-    if(received.minSomething) {thresholdObj.minSomething = received.minSomething}
-    console.log(thresholdObj);
+    if(received.avg) {thresholdObj.avg = received.avg}
+    if(received.vol) {thresholdObj.vol = received.vol}
+    if(received.min) {thresholdObj.min = received.min}
+    if(received.max) {thresholdObj.max = received.max}
   });
-
   stateSocket.on("message",async function(topic, message) {
     let received = JSON.parse(Buffer.from(message, 'base64'));
-    await compute(received);
+    await compute(received, thresholdObj);
   });
 }
 
-const compute = async (state) => {
-  let profitableOrder = await findGoodOrder(state);
+const compute = async (state, threshold) => {
+  let profitableOrder = await findGoodOrder(state, threshold);
   console.log(profitableOrder);
   push.send(
     [channel, Buffer.from(JSON.stringify(profitableOrder).toString('base64'))]);
 }
 
 
-const findGoodOrder = async(state) => {
-  console.log(state)
-  if(state.minimumBalance < state.balance) {
+const findGoodOrder = async(state, threshold) => {
+  if(state.askPrice < threshold.max) {
     return [{
       'symbol': state.symbol,
       'price': state.askPrice,
