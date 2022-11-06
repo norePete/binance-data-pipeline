@@ -50,7 +50,7 @@ const main = async() => {
     console.log(state);
     push.send(
       [channel, Buffer.from(JSON.stringify(calculated).toString('base64'))])
-    await new Promise((resolve) => {setTimeout(resolve, 2000)});
+    await new Promise((resolve) => {setTimeout(resolve, 200)});
   }
 }
 main();

@@ -2,7 +2,7 @@ require('dotenv').config()
 const os = require('os');
 const Binance = require('node-binance-api');
 const fs = require('fs');
-const tickerIndex = require('./tickerIndex');
+//const tickerIndex = require('./tickerIndex');
 
 const secret = process.env.SECRET;
 const apikey = process.env.APIKEY;
